@@ -1,0 +1,1059 @@
+VERSION 5.00
+Begin VB.PropertyPage ppgImageList 
+   Caption         =   "Custom Image List"
+   ClientHeight    =   3600
+   ClientLeft      =   0
+   ClientTop       =   0
+   ClientWidth     =   4800
+   PaletteMode     =   0  'Halftone
+   ScaleHeight     =   3600
+   ScaleWidth      =   4800
+   Begin VB.CommandButton cmdCheckerBoard 
+      Caption         =   "..."
+      Height          =   225
+      Left            =   2145
+      TabIndex        =   17
+      ToolTipText     =   "Change checkerboard colors"
+      Top             =   1980
+      Width           =   300
+   End
+   Begin VB.CommandButton cmdAct 
+      Caption         =   "Update Image Properties"
+      Enabled         =   0   'False
+      Height          =   495
+      Index           =   3
+      Left            =   2595
+      Style           =   1  'Graphical
+      TabIndex        =   6
+      Top             =   1755
+      Width           =   2130
+   End
+   Begin VB.CommandButton cmdAct 
+      Caption         =   "APPEND Image Using Above Properties"
+      Enabled         =   0   'False
+      Height          =   495
+      Index           =   2
+      Left            =   2595
+      Style           =   1  'Graphical
+      TabIndex        =   7
+      Top             =   1755
+      Width           =   2130
+   End
+   Begin VB.TextBox txtKeyTag 
+      Height          =   300
+      Index           =   0
+      Left            =   3015
+      TabIndex        =   2
+      Top             =   495
+      Width           =   1725
+   End
+   Begin VB.CommandButton cmdAct 
+      Caption         =   "X"
+      BeginProperty Font 
+         Name            =   "MS Sans Serif"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   700
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   510
+      Index           =   1
+      Left            =   4455
+      Style           =   1  'Graphical
+      TabIndex        =   11
+      ToolTipText     =   "Delete Highlighted Image"
+      Top             =   3015
+      Width           =   255
+   End
+   Begin VB.CommandButton cmdAct 
+      Caption         =   "Browse for Image"
+      Height          =   450
+      Index           =   0
+      Left            =   105
+      Style           =   1  'Graphical
+      TabIndex        =   0
+      Top             =   150
+      Width           =   2295
+   End
+   Begin VB.ComboBox cboIconSize 
+      Enabled         =   0   'False
+      Height          =   315
+      Left            =   105
+      Style           =   2  'Dropdown List
+      TabIndex        =   8
+      Top             =   2265
+      Width           =   2310
+   End
+   Begin VB.TextBox txtKeyTag 
+      Height          =   300
+      Index           =   1
+      Left            =   3015
+      TabIndex        =   3
+      Top             =   795
+      Width           =   1710
+   End
+   Begin VB.HScrollBar picScroll 
+      Height          =   255
+      LargeChange     =   9
+      Left            =   105
+      Max             =   100
+      Min             =   1
+      TabIndex        =   9
+      TabStop         =   0   'False
+      Top             =   2730
+      Value           =   1
+      Width           =   4605
+   End
+   Begin VB.PictureBox picImages 
+      Appearance      =   0  'Flat
+      ForeColor       =   &H80000008&
+      Height          =   510
+      Left            =   90
+      ScaleHeight     =   480
+      ScaleWidth      =   4320
+      TabIndex        =   10
+      Top             =   3015
+      Width           =   4350
+   End
+   Begin VB.ComboBox cboSize 
+      Height          =   315
+      Left            =   3015
+      Sorted          =   -1  'True
+      Style           =   2  'Dropdown List
+      TabIndex        =   1
+      Top             =   150
+      Width           =   1725
+   End
+   Begin VB.CheckBox chkUseMask 
+      Caption         =   "Mask Color Used"
+      Height          =   375
+      Left            =   3015
+      TabIndex        =   4
+      Top             =   1080
+      Width           =   1710
+   End
+   Begin VB.CheckBox chkScale 
+      Caption         =   "Scale when saving"
+      Height          =   270
+      Left            =   2595
+      TabIndex        =   5
+      Top             =   1425
+      Value           =   1  'Checked
+      Width           =   2115
+   End
+   Begin VB.Label Label1 
+      Alignment       =   1  'Right Justify
+      Caption         =   "Size"
+      Height          =   330
+      Left            =   2475
+      TabIndex        =   16
+      Top             =   195
+      Width           =   435
+   End
+   Begin VB.Label lblIndex 
+      Caption         =   "Image Index:  none"
+      Height          =   255
+      Left            =   2565
+      TabIndex        =   15
+      Top             =   2310
+      Width           =   2115
+   End
+   Begin VB.Label lblTxtJump 
+      Alignment       =   1  'Right Justify
+      Caption         =   "Tag"
+      Height          =   315
+      Index           =   1
+      Left            =   2475
+      TabIndex        =   14
+      Top             =   825
+      Width           =   435
+   End
+   Begin VB.Label lblTxtJump 
+      Alignment       =   1  'Right Justify
+      Caption         =   "Key"
+      Height          =   330
+      Index           =   0
+      Left            =   2475
+      TabIndex        =   13
+      Top             =   525
+      Width           =   435
+   End
+   Begin VB.Shape shpSample 
+      Height          =   1500
+      Left            =   150
+      Shape           =   4  'Rounded Rectangle
+      Top             =   660
+      Width           =   2220
+   End
+   Begin VB.Label lblMaskColor 
+      Appearance      =   0  'Flat
+      BackColor       =   &H00FF00FF&
+      BorderStyle     =   1  'Fixed Single
+      ForeColor       =   &H80000008&
+      Height          =   270
+      Left            =   2595
+      TabIndex        =   12
+      ToolTipText     =   "Click to change mask color"
+      Top             =   1140
+      Width           =   315
+   End
+End
+Attribute VB_Name = "ppgImageList"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+Option Explicit
+
+Private Declare Sub CopyMemory Lib "kernel32.dll" Alias "RtlMoveMemory" (ByRef Destination As Any, ByRef Source As Any, ByVal Length As Long)
+
+' Using APIs for a File Open dialog to provide unicode filename support
+Private Type OPENFILENAME
+     lStructSize As Long
+     hwndOwner As Long
+     hInstance As Long
+     lpstrFilter As String
+     lpstrCustomFilter As String
+     nMaxCustFilter As Long
+     nFilterIndex As Long
+     lpstrFile As String
+     nMaxFile As Long
+     lpstrFileTitle As String
+     nMaxFileTitle As Long
+     lpstrInitialDir As String
+     lpstrTitle As String
+     Flags As Long
+     nFileOffset As Integer
+     nFileExtension As Integer
+     lpstrDefExt As String
+     lCustData As Long
+     lpfnHook As Long
+     lpTemplateName As String
+
+End Type
+Private Declare Function GetOpenFileNameW Lib "comdlg32.dll" (pOpenfilename As OPENFILENAME) As Long
+Private Declare Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
+Private Declare Function GetDesktopWindow Lib "user32.dll" () As Long
+Private Declare Function IsWindowUnicode Lib "user32.dll" (ByVal hwnd As Long) As Long
+Private Declare Function lstrlenW Lib "kernel32.dll" (lpString As Any) As Long
+Private Declare Function lstrlen Lib "kernel32.dll" Alias "lstrlenA" (ByVal lpString As String) As Long
+Private Const OFN_DONTADDTORECENT As Long = &H2000000
+Private Const OFN_ENABLESIZING As Long = &H800000
+Private Const OFN_EXPLORER As Long = &H80000
+Private Const OFN_FILEMUSTEXIST As Long = &H1000
+Private Const OFN_LONGNAMES As Long = &H200000
+Private Const OFN_CREATEPROMPT As Long = &H2000
+Private Const OFN_EXTENSIONDIFFERENT As Long = &H400
+Private Const OFN_OVERWRITEPROMPT As Long = &H2
+Private Const OFN_NOCHANGEDIR As Long = &H8
+
+Private Declare Function CHOOSECOLOR Lib "comdlg32.dll" Alias "ChooseColorA" (lpcc As CHOOSECOLORSTRUCT) As Long
+Private Type CHOOSECOLORSTRUCT  ' 36 bytes; for the color dialog box
+   lStructSize     As Long
+   hwndOwner       As Long
+   hInstance       As Long
+   rgbResult       As Long
+   lpCustColors    As Long
+   Flags           As Long
+   lCustData       As Long
+   lpfnHook        As Long
+   lpTemplateName  As String
+End Type
+
+Private Declare Function DrawFocusRect Lib "user32.dll" (ByVal hDC As Long, ByRef lpRect As RECT) As Long
+Private Type RECT
+    Left As Long
+    Top As Long
+    Right As Long
+    Bottom As Long
+End Type
+
+Private Declare Function CreatePopupMenu Lib "user32.dll" () As Long
+Private Declare Function AppendMenu Lib "user32.dll" Alias "AppendMenuA" (ByVal hMenu As Long, ByVal wFlags As Long, ByVal wIDNewItem As Long, ByVal lpNewItem As Any) As Long
+Private Declare Function DestroyMenu Lib "user32.dll" (ByVal hMenu As Long) As Long
+Private Declare Function TrackPopupMenu Lib "user32.dll" (ByVal hMenu As Long, ByVal wFlags As Long, ByVal X As Long, ByVal Y As Long, ByVal nReserved As Long, ByVal hwnd As Long, ByRef lprc As RECT) As Long
+Private Const TPM_LEFTALIGN As Long = &H0&
+Private Const TPM_NOANIMATION As Long = &H4000&
+Private Const TPM_RETURNCMD As Long = &H100&
+Private Const TPM_TOPALIGN As Long = &H0&
+Private Const MF_STRING As Long = &H0&
+Private Const MF_SEPARATOR As Long = &H800&
+Private Declare Function GetCursorPos Lib "user32.dll" (ByRef lpPoint As POINTAPI) As Long
+Private Type POINTAPI
+    X As Long
+    Y As Long
+End Type
+
+
+Private Declare Function SendMessage Lib "user32.dll" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByRef lParam As Any) As Long
+Private Const CB_FINDSTRINGEXACT As Long = &H158
+
+Private m_ChkrMain As Long      ' checkerboard colors, if -1 then don't use
+Private m_ChkrAlt As Long
+
+Private cDIB As c32bppDIB
+Private cCkrBrd As c32bppDIB
+Private cImageListNow As cImageLists
+Private itemSelect As Long
+Private lastSelect As Long
+Private bMultiSelect As Boolean
+
+Private Sub cboIconSize_Click()
+
+    If bMultiSelect Then Exit Sub
+    If cDIB Is Nothing Then Exit Sub
+    
+    If cDIB.Alpha Then
+        chkUseMask.Enabled = False
+    Else
+        chkUseMask.Enabled = True
+        lblMaskColor.BackColor = cDIB.GetPixel(0, 0)
+    End If
+    chkUseMask.Tag = "NoAction": chkUseMask.Value = 0: chkUseMask.Tag = vbNullString
+
+    RenderSample
+
+End Sub
+
+Private Sub chkUseMask_Click()
+    
+    If bMultiSelect Then Exit Sub
+    If chkUseMask.Tag = vbNullString Then
+        If chkUseMask.Value = 1 Then
+            lblMaskColor.ForeColor = lblMaskColor.BackColor
+            cDIB.MakeTransparent lblMaskColor.BackColor, False
+        Else
+            cDIB.MakeTransparent lblMaskColor.ForeColor, True
+        End If
+        RenderSample
+    Else
+        chkUseMask.Tag = vbNullString
+    End If
+End Sub
+
+Private Sub cmdAct_Click(Index As Integer)
+    
+    If bMultiSelect Then Exit Sub
+    Select Case Index
+    Case 0 ' browse
+        DoBrowseWindow
+    Case 1 ' delete
+        DoDeleteImage
+    Case 2 ' insert
+        DoInsertImage
+    Case 3
+        DoUpdateProperties
+    End Select
+End Sub
+
+Private Sub cmdCheckerBoard_Click()
+
+    If bMultiSelect Then Exit Sub
+    Dim hMenu As Long, mRtn As Long
+    Dim mRect As RECT, mPt As POINTAPI
+    Dim bRender As Boolean
+    
+    GetCursorPos mPt
+    hMenu = CreatePopupMenu
+    AppendMenu hMenu, MF_STRING, 100, ByVal "Change 1st checker color"
+    AppendMenu hMenu, MF_STRING, 200, ByVal "Change alternating checker color"
+    AppendMenu hMenu, MF_SEPARATOR, 111, ByVal vbNullString
+    AppendMenu hMenu, MF_STRING, 300, ByVal "Do not use checker board"
+    AppendMenu hMenu, MF_STRING, 400, ByVal "Reset to default checker board colors"
+    mRtn = TrackPopupMenu(hMenu, TPM_LEFTALIGN Or TPM_NOANIMATION Or TPM_RETURNCMD Or TPM_TOPALIGN, mPt.X, mPt.Y, 0&, PropertyPage.hwnd, mRect)
+    DestroyMenu hMenu
+    If Not mRtn = 0 Then
+        If mRtn = 300 Then
+            m_ChkrMain = -1
+            m_ChkrAlt = -1
+            bRender = True
+        ElseIf mRtn = 400 Then
+            m_ChkrMain = RGB(212, 212, 212)
+            m_ChkrAlt = vbWhite
+            bRender = True
+        Else    ' show color dialog
+            Dim cc As CHOOSECOLORSTRUCT, lGrays(0 To 15) As Long, Looper As Long
+            Const CC_FULLOPEN        As Long = &H2
+            Const CC_ANYCOLOR        As Long = &H100
+            With cc         'set the flags
+              .hInstance = App.hInstance
+              .Flags = CC_FULLOPEN Or CC_ANYCOLOR
+              .lStructSize = &H24
+              .hwndOwner = PropertyPage.hwnd
+              For Looper = 240 To 15 Step -15
+                    lGrays((Looper \ 15) - 1) = RGB(Looper, Looper, Looper)
+              Next
+              .lpCustColors = VarPtr(lGrays(0))
+            End With
+            If CHOOSECOLOR(cc) Then ' returned a selection
+                ' our control will close; so we don't need to a lot here
+                If mRtn = 100 Then
+                    m_ChkrMain = cc.rgbResult
+                Else
+                    m_ChkrAlt = cc.rgbResult
+                End If
+                bRender = True
+            End If
+        End If
+    End If
+    If bRender Then
+        Set cCkrBrd = Nothing
+        If cmdAct(2).Enabled Then ' currently browsed image displayed
+            If Not cDIB Is Nothing Then RenderSample
+        ElseIf cImageListNow.Count = 0& Then
+            MsgBox "Checkerboard pattern will be displayed when an image is viewed", vbInformation + vbOKOnly, "Confirmation"
+        Else
+            RefreshScroll False
+        End If
+        Changed = True
+    End If
+End Sub
+
+Private Sub lblMaskColor_Click()
+
+    If bMultiSelect Then Exit Sub
+    If chkUseMask.Enabled = False Then
+        MsgBox "Option is only available for non-transparent images." & vbCrLf & _
+            "Option applies to only images that have not yet been added to the image list.", vbInformation + vbOKOnly, "Clarification"
+        Exit Sub
+    End If
+    
+    Dim hMenu As Long, mRtn As Long
+    Dim mRect As RECT, mPt As POINTAPI
+    GetCursorPos mPt
+    hMenu = CreatePopupMenu
+    AppendMenu hMenu, MF_STRING, 100, ByVal "Use Top Left Corner Pixel"
+    AppendMenu hMenu, MF_STRING, 200, ByVal "Use Top Right Corner Pixel"
+    AppendMenu hMenu, MF_STRING, 300, ByVal "Use Bottom Left Corner Pixel"
+    AppendMenu hMenu, MF_STRING, 400, ByVal "Use Bottom Right Corner Pixel"
+    AppendMenu hMenu, MF_SEPARATOR, 111, ByVal vbNullString
+    If chkUseMask.Value = 1 Then
+        AppendMenu hMenu, MF_STRING, 500, ByVal "Remove Mask"
+        AppendMenu hMenu, MF_SEPARATOR, 112, ByVal vbNullString
+    End If
+    AppendMenu hMenu, MF_STRING, 1000, ByVal "Show Color Dialog"
+    mRtn = TrackPopupMenu(hMenu, TPM_LEFTALIGN Or TPM_NOANIMATION Or TPM_RETURNCMD Or TPM_TOPALIGN, mPt.X, mPt.Y, 0&, PropertyPage.hwnd, mRect)
+    DestroyMenu hMenu
+    If mRtn = 0 Then Exit Sub
+    
+    Select Case mRtn
+        Case 100: mPt.X = 0: mPt.Y = 0
+        Case 200: mPt.X = cDIB.Width - 1: mPt.Y = 0
+        Case 300: mPt.X = 0: mPt.Y = cDIB.Height - 1
+        Case 400: mPt.X = cDIB.Width - 1: mPt.Y = cDIB.Height - 1
+        Case 500: ' remove mask
+            chkUseMask.Value = 0
+            Exit Sub
+    End Select
+    If mRtn < 500 Then
+        mRtn = cDIB.GetPixel(mPt.X, mPt.Y)
+    Else        ' show color dialog
+        Dim cc As CHOOSECOLORSTRUCT, lGrays(0 To 15) As Long
+        Const CC_RGBINIT         As Long = &H1
+        Const CC_FULLOPEN        As Long = &H2
+        Const CC_ANYCOLOR        As Long = &H100
+        With cc         'set the flags
+          .hInstance = App.hInstance
+          .Flags = CC_FULLOPEN Or CC_ANYCOLOR Or CC_RGBINIT
+          .lStructSize = &H24
+          .hwndOwner = PropertyPage.hwnd
+          .rgbResult = lblMaskColor.BackColor
+          For mRtn = 240 To 15 Step -15
+                lGrays((mRtn \ 15) - 1) = RGB(mRtn, mRtn, mRtn)
+          Next
+          .lpCustColors = VarPtr(lGrays(0))
+        End With
+        If CHOOSECOLOR(cc) Then ' returned a selection
+            ' our control will close; so we don't need to a lot here
+            mRtn = cc.rgbResult
+        Else
+            mRtn = -1
+        End If
+    End If
+    If mRtn > -1 Then
+        lblMaskColor.BackColor = mRtn
+        If chkUseMask.Value = 1 Then
+            cDIB.MakeTransparent lblMaskColor.ForeColor, True
+            Call chkUseMask_Click
+        Else
+            chkUseMask.Value = 1
+        End If
+    End If
+
+End Sub
+
+Private Sub lblTxtJump_Click(Index As Integer)
+    txtKeyTag(Index).SetFocus
+End Sub
+
+Private Sub picImages_KeyDown(KeyCode As Integer, Shift As Integer)
+    ' allow keybaord navigation while in the scroll window
+    
+    If bMultiSelect Then Exit Sub
+    Dim nextItem As Long
+    Select Case KeyCode
+        Case vbKeyRight, vbKeyDown, vbKeyPageDown
+            If itemSelect = cImageListNow.Count Then Exit Sub
+            nextItem = itemSelect + 1
+        Case vbKeyEnd
+            If itemSelect = cImageListNow.Count Then Exit Sub
+            nextItem = cImageListNow.Count
+        Case vbKeyHome
+            If itemSelect = 1 Then Exit Sub
+            nextItem = 1
+        Case vbKeyLeft, vbKeyUp, vbKeyPageUp
+            If itemSelect = 1 Then Exit Sub
+            nextItem = itemSelect - 1
+        Case Else
+            Exit Sub
+    End Select
+    If picScroll.Value > nextItem Then
+        picScroll.Value = nextItem
+    ElseIf nextItem > picScroll.Value + 8 Then
+        picScroll.Value = nextItem - 8
+    End If
+    itemSelect = nextItem
+    Call picImages_MouseDown(vbLeftButton, 0, (itemSelect - picScroll.Value) * 32, 0)
+        
+End Sub
+
+Private Sub picImages_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    
+    If bMultiSelect Then Exit Sub
+    If cImageListNow.Count = 0 Then
+        cmdAct(3).Enabled = False
+        Exit Sub
+    ElseIf (Button And vbLeftButton) = 0 Then
+        Exit Sub
+    End If
+    
+    Dim Index As Long, pRect As RECT
+    
+    Index = X \ 32 + picScroll.Value
+    If Index > cImageListNow.Count Then Index = cImageListNow.Count
+    If lastSelect = Index Then
+        If cmdAct(2).Enabled = False Then Exit Sub
+    End If
+    
+    If Not lastSelect = 0 Then                 ' erase previous focus rect
+        pRect.Left = 32 * (lastSelect - picScroll.Value)
+        pRect.Right = pRect.Left + 32&
+        pRect.Bottom = 32&
+        DrawFocusRect picImages.hDC, pRect
+    End If
+    
+    itemSelect = Index
+    lastSelect = itemSelect
+    lblIndex.Caption = "Image Index: " & itemSelect & " of " & cImageListNow.Count
+    
+    pRect.Left = (itemSelect - picScroll.Value) * 32&            ' draw new focus rect
+    pRect.Right = pRect.Left + 32&
+    pRect.Bottom = 32&
+    DrawFocusRect picImages.hDC, pRect
+    picImages.Refresh
+    
+    Dim destCx As Long, destCy As Long  ' scaled destination image size
+    Dim dcCx As Long, dcCy As Long      ' canvas size to draw on
+    Dim xRatio As Single, yRatio As Single
+    Dim sKey As String, sTag As String
+    
+    ' determine size of our canvas
+    dcCx = ScaleX(shpSample.Width, PropertyPage.ScaleMode, vbPixels)
+    dcCy = ScaleY(shpSample.Height, PropertyPage.ScaleMode, vbPixels)
+    
+    With cImageListNow
+        .ImageProps Index, sKey, destCx, destCy, sTag
+        If Button = vbLeftButton Then
+            txtKeyTag(0) = sKey
+            txtKeyTag(1) = sTag
+            cmdAct(3).Enabled = True: cmdAct(3).ZOrder
+            cmdAct(2).Enabled = False
+            cboSize.Enabled = False
+            cboIconSize.Clear
+            cboSize = Format(destCx, "00000") & " x " & Format(destCy, "00000")
+            chkUseMask.Tag = "NoAction": chkUseMask.Value = 0: chkUseMask.Tag = vbNullString
+            chkUseMask.Enabled = False
+        End If
+        If destCx > dcCx - 20 Or destCy > dcCy - 20 Then
+            xRatio = (dcCx - 20) / destCx
+            yRatio = (dcCy - 20) / destCy
+            If yRatio < xRatio Then xRatio = yRatio
+            destCx = destCx * xRatio
+            destCy = destCy * xRatio
+        End If
+    
+        RenderCheckerboard
+    
+        ' render the image using center of canvas as anchor
+        .Render Index, PropertyPage.hDC, _
+            ScaleX(shpSample.Left, PropertyPage.ScaleMode, vbPixels) + dcCx \ 2, _
+            ScaleY(shpSample.Top, PropertyPage.ScaleMode, vbPixels) + dcCy \ 2, destCx, destCy, 0, 100, gsclNone, True
+    End With
+    Refresh
+
+End Sub
+
+Private Sub picScroll_Change()
+    RefreshScroll False
+End Sub
+
+Private Sub picScroll_Scroll()
+    RefreshScroll False
+End Sub
+
+Private Sub PropertyPage_ApplyChanges()
+    Dim ucImageList As UserControl1
+    Dim ppgData() As Byte
+    cImageListNow.SetCloneMode False, False
+    ReDim ppgData(0 To 7)
+    CopyMemory ppgData(0), m_ChkrMain, 4&
+    CopyMemory ppgData(4), m_ChkrAlt, 4&
+    cImageListNow.SetPropPageProps ppgData
+    Changed = False
+    Set ucImageList = SelectedControls(0)
+    Set ucImageList.ImageLists = cImageListNow
+End Sub
+
+Private Sub PropertyPage_SelectionChanged()
+    
+    Select Case SelectedControls.Count
+    Case 0:
+        ResetScreen
+        bMultiSelect = False
+        Exit Sub
+    Case 1
+        ResetScreen
+        bMultiSelect = False
+    Case Else
+        If Not bMultiSelect Then
+            MsgBox "Only one image list can be updated at a time.", vbInformation + vbOKOnly, "Invalid Selection"
+            bMultiSelect = True
+        End If
+        Exit Sub
+    End Select
+    
+    Dim m_ucList As UserControl1
+    Dim Index As Long, ilSizes() As Long
+    Dim sSize As String, ppgData() As Byte
+    
+    Set m_ucList = SelectedControls(0)
+    Set cImageListNow = m_ucList.ImageLists
+    cImageListNow.SetCloneMode True, False
+    
+    Index = cImageListNow.ImageListSizes(ilSizes)
+    For Index = 0 To Index - 1
+        sSize = Format(ilSizes(Index, 0), "00000") & " x " & Format(ilSizes(Index, 1), "00000")
+        If SendMessage(cboSize.hwnd, CB_FINDSTRINGEXACT, -1, ByVal sSize) < 0 Then
+            cboSize.AddItem sSize
+        End If
+    Next
+    With cImageListNow
+        If .Count > 9 Then
+            picScroll.Max = .Count - 8
+            picScroll.Visible = True
+        Else
+            picScroll.Visible = False
+        End If
+        .GetPropPageProps ppgData()
+        On Error Resume Next
+        Index = LBound(ppgData)
+        If Err Then
+            Err.Clear
+            m_ChkrMain = RGB(212, 212, 212)
+            m_ChkrAlt = vbWhite
+        Else
+            CopyMemory m_ChkrMain, ppgData(Index), 4&
+            CopyMemory m_ChkrAlt, ppgData(Index + 4), 4&
+        End If
+    End With
+    If cImageListNow.Count > 0 Then
+        itemSelect = 1
+        RefreshScroll True
+        cmdAct(1).Enabled = True
+    End If
+End Sub
+
+Private Sub RefreshScroll(UpdateProps As Boolean)
+    
+    If bMultiSelect Then Exit Sub
+    Dim buttonFlag As Integer
+    Dim Index As Long
+    picImages.Cls
+    With cImageListNow
+         .RenderRangeHorizontal picScroll.Value, picScroll.Value + 8, picImages.hDC, 0, 0, 32, 32
+    End With
+    picImages.Refresh
+    Index = itemSelect
+    lastSelect = 0&
+    If Not Index = 0& Then
+        If picScroll.Value > Index Then
+            Index = 0
+        ElseIf Index > picScroll.Value + 8 Then
+            Index = 0
+        Else
+            Index = Index - picScroll.Value + 1
+            If UpdateProps Then buttonFlag = vbLeftButton Else buttonFlag = -1
+        End If
+        If Not Index = 0 Then Call picImages_MouseDown(buttonFlag, 0, 32 * Index - 1, 1)
+    End If
+
+End Sub
+
+Private Sub PropertyPage_Terminate()
+    If Changed = True Then cImageListNow.SetCloneMode False, True
+End Sub
+
+Private Sub txtKeyTag_GotFocus(Index As Integer)
+    With txtKeyTag(Index)
+        .SelStart = 0&
+        .SelLength = Len(.Text)
+    End With
+End Sub
+
+Private Sub PropertyPage_Initialize()
+    
+    cboSize.AddItem "00016 x 00016"
+    cboSize.AddItem "00024 x 00024"
+    cboSize.AddItem "00032 x 00032"
+    cboSize.AddItem "00048 x 00048"
+        cboSize.ItemData(0) = 1     ' flag to prevent removal from list
+        cboSize.ItemData(1) = 1
+        cboSize.ItemData(2) = 1
+        cboSize.ItemData(3) = 1
+    cboSize.AddItem "Custom"
+    cboSize = "00032 x 00032"       ' set as initial size
+    PropertyPage.AutoRedraw = True
+    picImages.AutoRedraw = True
+    picImages.ScaleMode = vbPixels
+    PropertyPage.Changed = False
+End Sub
+
+Private Function GetFileName() As String
+    
+    ' using API version vs commondialog enables Unicode filenames to be passed to c32bppDIB classes
+    Dim ofn As OPENFILENAME
+    Dim rtn As Long
+    Dim bUnicode As Boolean
+    
+    With ofn
+        .lStructSize = Len(ofn)
+        .hwndOwner = PropertyPage.hwnd
+        .hInstance = App.hInstance
+        .lpstrFilter = "Image Files" & Chr$(0) & "*gif;*.bmp;*.jpg;*.jpeg;*.ico;*.cur;*.wmf;*.emf;*.png"
+        If cDIB.isGDIplusEnabled = True Then
+            .lpstrFilter = .lpstrFilter & ";*.tiff"
+        End If
+        .lpstrFilter = .lpstrFilter & Chr$(0) & "Bitmaps" & Chr$(0) & "*.bmp" & Chr$(0) & "GIFs" & Chr$(0) & "*.gif" & Chr$(0) & "Icons and Cursors" & Chr$(0) & "*.ico;*.cur" & Chr$(0) & "JPGs" & Chr$(0) & "*.jpg;*.jpeg" & Chr$(0) & "Meta Files" & Chr$(0) & "*.wmf;*.emf" & Chr$(0) & "PNGs" & Chr$(0) & "*.png" & Chr$(0)
+        If cDIB.isGDIplusEnabled = True Then
+            .lpstrFilter = .lpstrFilter & "Tiff" & Chr$(0) & "*.tiff" & Chr$(0)
+        End If
+        .lpstrFilter = ofn.lpstrFilter & "All Files" & Chr$(0) & "*.*" & Chr$(0)
+        .lpstrDefExt = vbNullString
+        .lpstrFile = String$(256, 0)
+        .nMaxFile = 256
+        .nMaxFileTitle = 256
+        .lpstrTitle = "Select Image"
+        .lpstrInitialDir = vbNullString
+        .Flags = OFN_LONGNAMES Or OFN_EXPLORER Or OFN_ENABLESIZING Or OFN_DONTADDTORECENT _
+                Or OFN_FILEMUSTEXIST
+    
+        bUnicode = Not (IsWindowUnicode(GetDesktopWindow) = 0&)
+        If bUnicode Then
+            .lpstrInitialDir = StrConv(.lpstrInitialDir, vbUnicode)
+            .lpstrFile = StrConv(.lpstrFile, vbUnicode)
+            .lpstrFilter = StrConv(.lpstrFilter, vbUnicode)
+            .lpstrTitle = StrConv(.lpstrTitle, vbUnicode)
+        End If
+        .lpstrFileTitle = .lpstrFile
+    End With
+    
+    If bUnicode Then
+        rtn = GetOpenFileNameW(ofn)
+        If rtn > 0& Then
+            If bUnicode Then
+                rtn = lstrlenW(ByVal ofn.lpstrFile)
+                GetFileName = StrConv(Left$(ofn.lpstrFile, rtn * 2), vbFromUnicode)
+            End If
+        End If
+    Else
+        rtn = GetOpenFileName(ofn)
+        If rtn > 0& Then
+            rtn = lstrlen(ofn.lpstrFile)
+            GetFileName = Left$(ofn.lpstrFile, rtn)
+        End If
+    End If
+
+ExitRoutine:
+End Function
+
+
+Private Sub LoadIconSizes()
+
+    Dim icoSizes() As Long
+    Dim X As Long, I As Long
+    Dim sItem As String, sOrder As Long
+    
+    cboIconSize.Clear
+    If cDIB.SourceIconSizes(icoSizes) = 0 Then
+        sItem = cDIB.Width & "x" & cDIB.Height & ": "
+        Select Case cDIB.ImageType
+            Case imgBitmap: sItem = sItem & "Bmp/JPG"
+            Case imgBmpARGB, imgBmpPARGB: sItem = sItem & "Alpha Bmp"
+            Case imgEMF, imgWMF: sItem = sItem & "WMF"
+            Case imgGIF: sItem = sItem & "GIF"
+            Case imgPNG: sItem = sItem & "PNG"
+            Case Else
+        End Select
+        cboIconSize.AddItem sItem
+        cboIconSize.Enabled = False
+    Else
+        For X = 0 To UBound(icoSizes, 2)
+            sItem = Format(icoSizes(0, X), "000") & "x" & Format(icoSizes(1, X), "000")
+            sItem = sItem & " {" & icoSizes(2, X) & "bpp, "
+            Select Case icoSizes(3, X)
+                Case TRUE_COLOR
+                    sItem = sItem & "TrueColor}"
+                Case HIGH_COLOR
+                    sItem = sItem & "HighColor}"
+                Case TRUE_COLOR_ALPHA
+                    sItem = sItem & "Alpha}"
+                Case Else
+                    sItem = sItem & icoSizes(3, X) & " colors}"
+            End Select
+            sOrder = icoSizes(0, X) * icoSizes(1, X) + icoSizes(2, X)
+            For I = 0 To cboIconSize.ListCount - 1
+                If sOrder < cboIconSize.ItemData(I) Then Exit For
+            Next
+            cboIconSize.AddItem sItem, I
+            cboIconSize.ItemData(I) = sOrder
+        Next
+    End If
+    cboIconSize.Enabled = (cboIconSize.ListCount > 1)
+    If cboIconSize.ListCount > 0 Then cboIconSize.ListIndex = cboIconSize.ListCount - 1
+End Sub
+
+Private Sub DoBrowseWindow()
+
+    Dim sFilename As String
+    Set cDIB = New c32bppDIB
+    sFilename = GetFileName
+    If Not sFilename = vbNullString Then
+        cmdAct(3).Enabled = False
+        cmdAct(2).ZOrder: cmdAct(2).Enabled = True
+        txtKeyTag(0).Text = vbNullString
+        txtKeyTag(1).Text = vbNullString
+        cboSize.Enabled = True
+        txtKeyTag(0).SetFocus
+        Refresh
+        If cDIB.LoadPicture_File(sFilename) Then
+            Select Case cDIB.ImageType
+            Case imgIcon, imgIconARGB, imgPNGicon, imgCursor, imgCursorARGB
+                Call cDIB.LoadPicture_File(sFilename, , , True)
+            End Select
+            Call LoadIconSizes
+            cmdAct(2).Enabled = True
+        Else
+            MsgBox "Failed to load the selected file", vbInformation + vbOKOnly, "Unrecognized Image Format"
+            cmdAct(2).Enabled = False
+        End If
+    Else
+        cmdAct(2).Enabled = False
+    End If
+End Sub
+
+Private Sub DoInsertImage()
+
+    Dim cX As Long, cY As Long, sSize As String
+    
+    If cboSize.Text = "Custom" Then
+        ' user wants a custom imagelist, provide opportunity
+        sSize = cDIB.Width & " " & cDIB.Height
+        sSize = InputBox("Enter the desired image width and height separated by a space (i.e., 128 128)" & _
+            vbCrLf & vbCrLf & "Larger sizes will increase your application compile size.", "Custom Size", sSize)
+            
+        ' validation required
+        sSize = Trim$(sSize)
+        If sSize = vbNullString Then Exit Sub
+            
+        Do Until InStr(sSize, "  ") = 0&        ' remove all double spaces
+            sSize = Replace$(sSize, "  ", " ")
+        Loop
+        If InStr(sSize, " ") = 0 Then
+            MsgBox "The correct format for a custom size is the width and height separated by a space", vbInformation + vbOKOnly, "Error"
+            Exit Sub
+        End If
+        
+        cX = Val(Left$(sSize, InStr(sSize, " ") - 1))
+        cY = Val(Mid$(sSize, InStr(sSize, " ") + 1))
+        
+        If cX < 1 Or cY < 1 Then    ' more validation & warnings
+            MsgBox "Inavlid size. The width and/or height cannot be zero or less", vbInformation + vbOKOnly, "Error"
+            Exit Sub
+        End If
+            
+        If cX > 1024 Or cY > 1024 Then
+            MsgBox "That image size exceeds the image manager's capabilities", vbInformation + vbOKOnly, "Error"
+            ' ^^ not really, but a huge waste of resources and multiple images on imagelist is severely limited
+            Exit Sub
+        Else
+            sSize = Format(cX, "00000") & " x " & Format(cY, "00000")
+            If cX > 256 Or cY > 256 Then
+                If SendMessage(cboSize.hwnd, CB_FINDSTRINGEXACT, -1, ByVal sSize) < 0 Then
+                    If MsgBox("Adding very large images may hamper performance and number of such large images is limited by system resources." & _
+                        vbCrLf & "Continue with adding this image as " & cX & " x " & cY & " ?", vbYesNo + vbQuestion + vbDefaultButton2, "Confirmation") = vbNo Then Exit Sub
+                    ' ^^ the custom imagelists here can contain several hundred to thousands of images,
+                    ' however there is a limit. Since each image list is a single DIB, system restrictions
+                    ' prevent how big the DIB can be
+                End If
+            End If
+        End If
+    
+    Else    ' existing size
+        sSize = cboSize.Text
+        cX = Val(sSize)
+        cY = Val(Mid$(sSize, InStr(sSize, "x") + 1))
+    End If
+    
+    ' ok, let's add it to our imagelist
+    If cImageListNow.AddImage(cDIB, cX, cY, txtKeyTag(0), txtKeyTag(1), chkScale.Value) Then
+        ' add the size to the combobox if it doesn't exist already
+        If SendMessage(cboSize.hwnd, CB_FINDSTRINGEXACT, -1, ByVal sSize) < 0 Then
+            cboSize.AddItem sSize
+            cboSize.ListIndex = cboSize.newIndex
+        End If
+        ' we will show this image immediately in the scroll area
+        itemSelect = cImageListNow.Count
+        If cImageListNow.Count > 9 Then             ' scroll needed
+            If picScroll.Visible = False Then picScroll.Visible = True
+            picScroll.Max = cImageListNow.Count - 8 ' set max scroll value & change the value
+            picScroll.Value = picScroll.Max         ' this will refresh & display new image
+        Else
+            RefreshScroll True                      ' refresh scroll
+        End If
+        Changed = True
+    End If
+    Set cDIB = Nothing
+    If cmdAct(1).Enabled = False Then cmdAct(1).Enabled = True
+    
+End Sub
+
+Private Sub DoDeleteImage()
+
+    If cImageListNow.Count > 0 Then ' do we have images to delete
+        If itemSelect > 0 Then      ' is one selected; always should be
+            ' ok remove the image
+            If cImageListNow.RemoveImage(itemSelect) Then
+                ' choose which item to show selected. If last image removed, make last to be selected
+                If itemSelect > cImageListNow.Count Then itemSelect = cImageListNow.Count
+                
+                If picScroll.Visible = True Then        ' do we hide scrollbar?
+                    If cImageListNow.Count < 10 Then    ' yep
+                        picScroll.Max = 1
+                        picScroll.Visible = False
+                    Else                                ' nope, but adjust max value
+                        picScroll.Max = cImageListNow.Count - 8
+                    End If
+                End If
+                
+                If itemSelect = 0& Then                 ' no more images
+                    ResetScreen
+                Else                                    ' show next selected item
+                    RefreshScroll True
+                End If
+                Changed = True
+            End If
+        End If
+    End If
+
+End Sub
+
+Private Sub DoUpdateProperties()
+
+    If itemSelect > 0 Then      ' is one selected; always should be
+        ' ok remove the image
+        If cImageListNow.UpdateImage(itemSelect, txtKeyTag(0), txtKeyTag(1)) Then
+            Changed = True
+        Else
+            MsgBox "Error. Could not update. Ensure you are not trying to duplicate an already existing Key", vbInformation + vbOKOnly, "Error"
+        End If
+    End If
+
+End Sub
+
+Private Sub ResetScreen()
+
+    picImages.Cls                       ' reset bunch of stuff
+    lastSelect = 0&
+    itemSelect = 0&
+    cmdAct(2).Enabled = False
+    cmdAct(3).Enabled = False
+    txtKeyTag(0) = vbNullString
+    txtKeyTag(1) = vbNullString
+    cboSize.Enabled = False
+    cboSize.Clear
+    chkUseMask.Tag = "NoAction": chkUseMask.Value = 0: chkUseMask.Tag = vbNullString
+    picScroll.Visible = False
+    picScroll.Max = 1
+    lblIndex.Caption = "Image Index: none"
+    cmdAct(1).Enabled = False
+    chkScale.Value = 1
+    Cls
+
+End Sub
+
+Private Sub RenderSample()
+
+    Dim destCx As Long, destCy As Long  ' scaled destination image size
+    Dim srcCx As Long, srcCy As Long    ' original image size
+    Dim dcCx As Long, dcCy As Long      ' canvas size to draw on
+    
+    
+    If cboIconSize.Enabled = True Then  ' multiple icon formats exist
+        ' determine original size to display
+        srcCx = Val(cboIconSize.Text)
+        srcCy = Val(Mid$(cboIconSize.Text, InStr(cboIconSize.Text, "x") + 1))
+        ' have class reload image and specifiy the size/depth required
+        cDIB.LoadPicture_FromOrignalFormat srcCx, srcCy, Val(Mid$(cboIconSize.Text, InStr(cboIconSize.Text, "{") + 1, 3))
+    End If
+    
+    ' determine size of our canvas
+    dcCx = ScaleX(shpSample.Width, PropertyPage.ScaleMode, vbPixels)
+    dcCy = ScaleY(shpSample.Height, PropertyPage.ScaleMode, vbPixels)
+    ' scale source image to our canvas, scaling down if needed but don't stretch larger than original size
+    cDIB.ScaleImage dcCx - 20, dcCy - 20, destCx, destCy, scaleDownAsNeeded
+    
+    RenderCheckerboard
+    ' render the image using center of canvas as anchor
+    cDIB.Render PropertyPage.hDC, _
+        ScaleX(shpSample.Left, PropertyPage.ScaleMode, vbPixels) + dcCx \ 2, _
+        ScaleY(shpSample.Top, PropertyPage.ScaleMode, vbPixels) + dcCy \ 2, destCx, destCy, , , , , , , , , , , , True
+    Refresh
+End Sub
+
+Private Sub RenderCheckerboard()
+
+    If m_ChkrMain = -1 Then
+        Cls
+        Exit Sub
+    End If
+    
+    If cCkrBrd Is Nothing Then
+        ' create the checkerboard pattern
+        Dim dcCx As Long, dcCy As Long
+        ' determine size of our canvas
+        dcCx = ScaleX(shpSample.Width, PropertyPage.ScaleMode, vbPixels)
+        dcCy = ScaleY(shpSample.Height, PropertyPage.ScaleMode, vbPixels)
+        
+        Set cCkrBrd = New c32bppDIB
+        cCkrBrd.InitializeDIB dcCx - 20, dcCy - 20
+        cCkrBrd.CreateCheckerBoard 20, m_ChkrMain, m_ChkrAlt
+    End If
+    
+    ' render the checkerboard pattern
+    cCkrBrd.Render PropertyPage.hDC, _
+        ScaleX(shpSample.Left, PropertyPage.ScaleMode, vbPixels) + 10, _
+        ScaleY(shpSample.Top, PropertyPage.ScaleMode, vbPixels) + 10
+
+End Sub

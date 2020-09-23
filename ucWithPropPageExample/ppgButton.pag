@@ -1,0 +1,262 @@
+VERSION 5.00
+Begin VB.PropertyPage ppgButton 
+   Caption         =   "Custom Settings"
+   ClientHeight    =   3600
+   ClientLeft      =   0
+   ClientTop       =   0
+   ClientWidth     =   4800
+   PaletteMode     =   0  'Halftone
+   ScaleHeight     =   3600
+   ScaleWidth      =   4800
+   Begin VB.TextBox txtTag 
+      Enabled         =   0   'False
+      Height          =   285
+      Left            =   1410
+      TabIndex        =   9
+      Top             =   3060
+      Width           =   1260
+   End
+   Begin VB.TextBox txtKey 
+      Enabled         =   0   'False
+      Height          =   285
+      Left            =   1410
+      TabIndex        =   8
+      Top             =   2775
+      Width           =   1260
+   End
+   Begin VB.TextBox txtSize 
+      Enabled         =   0   'False
+      Height          =   285
+      Left            =   1410
+      TabIndex        =   7
+      Top             =   2475
+      Width           =   1260
+   End
+   Begin VB.PictureBox picImage 
+      AutoRedraw      =   -1  'True
+      Height          =   1245
+      Left            =   2760
+      ScaleHeight     =   1185
+      ScaleWidth      =   1305
+      TabIndex        =   4
+      Top             =   2115
+      Width           =   1365
+   End
+   Begin VB.ComboBox cboImgIndex 
+      Height          =   315
+      Left            =   1410
+      Style           =   2  'Dropdown List
+      TabIndex        =   3
+      Top             =   2070
+      Width           =   1290
+   End
+   Begin VB.ComboBox cboImageLists 
+      Height          =   315
+      Left            =   1410
+      Sorted          =   -1  'True
+      Style           =   2  'Dropdown List
+      TabIndex        =   0
+      Top             =   1740
+      Width           =   2745
+   End
+   Begin VB.Label Label1 
+      Caption         =   "Tag"
+      Height          =   225
+      Index           =   4
+      Left            =   390
+      TabIndex        =   12
+      Top             =   3105
+      Width           =   885
+   End
+   Begin VB.Label Label1 
+      Caption         =   "Key"
+      Height          =   225
+      Index           =   3
+      Left            =   390
+      TabIndex        =   11
+      Top             =   2820
+      Width           =   885
+   End
+   Begin VB.Label Label1 
+      Caption         =   "Actual Size"
+      Height          =   225
+      Index           =   2
+      Left            =   390
+      TabIndex        =   10
+      Top             =   2520
+      Width           =   885
+   End
+   Begin VB.Label lblInfo 
+      Caption         =   "Of course, you would have other properties too, like Caption, ForeColor, etc"
+      Height          =   600
+      Index           =   1
+      Left            =   585
+      TabIndex        =   6
+      Top             =   975
+      Width           =   3450
+   End
+   Begin VB.Label lblInfo 
+      Caption         =   $"ppgButton.pgx":0000
+      Height          =   885
+      Index           =   0
+      Left            =   255
+      TabIndex        =   5
+      Top             =   90
+      Width           =   4290
+   End
+   Begin VB.Label Label1 
+      Caption         =   "Image Index"
+      Height          =   225
+      Index           =   1
+      Left            =   390
+      TabIndex        =   2
+      Top             =   2130
+      Width           =   930
+   End
+   Begin VB.Label Label1 
+      Caption         =   "Image List"
+      Height          =   225
+      Index           =   0
+      Left            =   390
+      TabIndex        =   1
+      Top             =   1800
+      Width           =   885
+   End
+End
+Attribute VB_Name = "ppgButton"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+Option Explicit
+
+Private Declare Function SendMessage Lib "user32.dll" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByRef lParam As Any) As Long
+Private Const CB_FINDSTRINGEXACT As Long = &H158
+
+Private cImgList As cImageLists
+
+Private Sub cboImageLists_Click()
+    cboImgIndex.Clear
+    cboImgIndex.AddItem "<None>"
+    If cboImageLists.ListIndex = 0 Then
+        cboImgIndex.ListIndex = 0
+    Else
+        If SelectedControls.Count = 0 Then
+            cboImgIndex.ListIndex = 0&
+        Else
+        
+            Dim tUC As UserControl1
+            Dim cName As String, cIndex As Integer
+            
+            Set tUC = SelectedControls(0)
+            Set cImgList = tUC.ImageListFromControl(cboImageLists.Text, False)
+            If cImgList Is Nothing Then
+                Set cImgList = New cImageLists
+            Else
+                For cIndex = 1 To cImgList.Count
+                    cboImgIndex.AddItem "Image " & cIndex
+                Next
+                cboImgIndex.ListIndex = cboImgIndex.ListCount - 1
+            End If
+        End If
+    End If
+    Changed = True
+    
+End Sub
+
+Private Sub cboImgIndex_Click()
+    Changed = True  ' image id changed
+    picImage.Cls
+    If cboImgIndex.ListIndex = 0 Then
+        txtSize = vbNullString
+        txtKey = vbNullString
+        txtTag = vbNullString
+    Else
+        'let's get a bit more professional here.
+        Dim xRatio As Long, yRatio As Long
+        Dim imgWidth As Long, imgHeight As Long
+        Dim sKey As String, sTag As String
+        
+        Call cImgList.ImageProps(cboImgIndex.ListIndex, sKey, imgWidth, imgHeight, sTag)
+        txtKey = sKey
+        txtTag = sTag
+        txtSize = imgWidth & " x " & imgHeight
+        
+        xRatio = picImage.ScaleWidth / imgWidth
+        yRatio = picImage.ScaleHeight / imgHeight
+        If yRatio < xRatio Then xRatio = yRatio
+        If xRatio < 1 Then
+            imgWidth = imgWidth * xRatio
+            imgHeight = imgHeight * yRatio
+        End If
+        cImgList.Render cboImgIndex.ListIndex, picImage.hDC, _
+            picImage.ScaleWidth / 2, picImage.ScaleHeight / 2, imgWidth, imgHeight, , , , True
+        picImage.Refresh
+    End If
+End Sub
+
+Private Sub PropertyPage_ApplyChanges()
+
+    Dim I As Integer
+    For I = 0 To SelectedControls.Count - 1
+        If cboImageLists.ListIndex = 0 Then
+            SelectedControls(I).ImageList = vbNullString
+            SelectedControls(I).ImageID = vbNullString
+        Else
+            SelectedControls(I).ImageList = cboImageLists.Text
+            SelectedControls(I).ImageID = cboImgIndex.ListIndex
+        End If
+    Next
+    Changed = False
+
+End Sub
+
+Private Sub PropertyPage_Initialize()
+    picImage.ScaleMode = vbPixels   ' makes rendering a bit simpler
+End Sub
+
+Private Sub PropertyPage_SelectionChanged()
+
+    If cboImageLists.ListCount = 0 Then
+        ' fill in the imagelist entries if none exist
+        Dim tUC As UserControl1 ' declare specifically so we can call Friend routines
+        
+        Set tUC = SelectedControls(0)           ' specific set
+        Call tUC.FindImageLists(cboImageLists)  ' call helper function to fill in names
+        Set tUC = Nothing                       ' not needed now
+        
+        cboImageLists.AddItem "<None>", 0       ' add default entry in first position
+        cboImageLists.ListIndex = 0             ' start with none
+        
+    End If
+    
+    If SelectedControls.Count = 1 Then          ' we have a single selection
+        
+        Dim tImgList As String, tIndex As Long  ' we don't need a specific setting
+                                                ' because the routines we will call are public
+        
+        tImgList = SelectedControls(0).ImageList    ' get this control's imagelist name
+        If tImgList = vbNullString Then
+            cboImageLists.ListIndex = 0
+        Else
+            ' see if the imagelist name exists in combobox.  It always should
+            tIndex = SendMessage(cboImageLists.hwnd, CB_FINDSTRINGEXACT, -1, ByVal tImgList)
+            If tIndex = -1 Then
+                cboImageLists.ListIndex = 0 ' it didn't?  that's strange
+            Else
+                cboImageLists.ListIndex = tIndex    ' it does, select it
+                ' the image indexes in combobox are all numeric, but this
+                ' uc's imageID may be by Key. Convert Key to Index so we
+                ' can select it and show the image
+                cboImgIndex.ListIndex = cImgList.IndexFromKey(SelectedControls(0).ImageID)
+            End If
+        End If
+        Changed = False ' the combobox clicks set to True, we reset here to false
+    Else
+    
+        ' multiple selections. You choose what to do
+        ' Here we will simply ignore any previous changes made
+        Changed = False
+    End If
+
+End Sub
